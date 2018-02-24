@@ -1,5 +1,5 @@
 from wit import Wit
-
+import keyboard
 client = Wit('V5XCXYGJCVPEANKCYIREQXQ4MGB6NOSV')
 
 from sys import byteorder
@@ -125,3 +125,7 @@ if __name__ == '__main__':
     with open('demo.wav','rb') as f:
         resp = client.speech(f,None,{'Content-Type':'audio/wav'})
     print('Yay, got Wit.ai response: ' + str(resp))
+    if resp['entities']['structure'][0]['value'] == 'function':
+        name = resp['entities']['function_name'][0]['value']
+        keyboard.write('def '+ name+ '():',0.1)
+        
