@@ -1,6 +1,7 @@
 from wit import Wit
-import keyboard
+from pynput.keyboard import Controller, Key
 client = Wit('V5XCXYGJCVPEANKCYIREQXQ4MGB6NOSV')
+keyboard = Controller()
 
 from sys import byteorder
 from array import array
@@ -156,43 +157,60 @@ if __name__ == '__main__':
                         if index!=0:
                             arguments += ','
                         arguments += resp['entities']['argument_name'][index]['value']
-                keyboard.write('def '+ name+ '('+arguments+'):',0.1)        
-                keyboard.send('enter,tab')
+                keyboard.type('def '+ name+ '('+arguments+'):')
+                keyboard.press(Key.enter)
+                keyboard.release(Key.enter)
+                keyboard.press(Key.tab)
+                keyboard.release(Key.tab)
 
         elif ('print' in resp['entities']) and resp['entities']['print'][0]['value'] == 'print':
             if('function_name' in resp['entities']):
                 name = resp['entities']['function_name'][0]['value']
-                keyboard.write('def print_'+name+':',0.1)
-                keyboard.send('enter,tab')
-                keyboard.write('print('+name+')',0.1)
-                keyboard.send('enter')
-                keyboard.send('backspace')
+                keyboard.type('def print_'+name+':')
+                keyboard.press(Key.enter)
+                keyboard.release(Key.enter)
+                keyboard.press(Key.tab)
+                keyboard.release(Key.tab)
+                keyboard.type('print('+name+')')
+                keyboard.press(Key.enter)
+                keyboard.release(Key.enter)
+                keyboard.press(Key.backspace)
+                keyboard.release(Key.backspace)
             
         elif ('structure' in resp['entities']) and resp['entities']['structure'][0]['value'] == 'variable':
             if('function_name' in resp['entities']):
                 name = resp['entities']['function_name'][0]['value']
-                keyboard.write(name+ ' = 0',0.1)
-                keyboard.send('enter')
+                keyboard.type(name+ ' = 0')
+                keyboard.press(Key.enter)
+                keyboard.release(Key.enter)
             
         elif ('loop' in resp['entities']) and resp['entities']['loop'][0]['value'] == 'while loop':
-            keyboard.write('while True:',0.1)
-            keyboard.send('enter,tab');
+            keyboard.type('while True:')
+            keyboard.press(Key.enter)
+            keyboard.release(Key.enter)
+            keyboard.press(Key.tab)
+            keyboard.release(Key.tab)
         elif ('move' in resp['entities']) and (resp['entities']['move'][0]['value'] == 'back space'):
-            keyboard.send('backspace',0.1)
+            keyboard.press(Key.backspace)
+            keyboard.release(Key.backspace)
         elif ('function_name' in resp['entities']) and (resp['entities']['function_name'][0]['value'] == 'right'):
-            keyboard.send('right arrow',0.1)
+            keyboard.press(Key.right)
+            keyboard.release(Key.right)
         elif ('function_name' in resp['entities']) and (resp['entities']['function_name'][0]['value'] == 'left'):
-            keyboard.send('left arrow',0.1)
+            keyboard.press(Key.up)
+            keyboard.release(Key.up)
         elif ('move' in resp['entities']) and (resp['entities']['move'][0]['value'] == 'up'):
-            keyboard.send('up arrow',0.1)
+            keyboard.press(Key.up)
+            keyboard.release(Key.up)
         elif ('move' in resp['entities']) and (resp['entities']['move'][0]['value'] == 'down'):
-            keyboard.send('down arrow',0.1)
+            keyboard.press(Key.down)
+            keyboard.release(Key.down)
         else:
             unknown_command();
 
     #create variables
     #backspace
-    #tab
+    #Key.tab
     #go up (number) lines
     #go down (number) lines
     #go left (number) lines

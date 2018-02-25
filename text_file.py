@@ -1,6 +1,7 @@
 from wit import Wit
-import keyboard
+from pynput.keyboard import Key, Controller
 client = Wit('V5XCXYGJCVPEANKCYIREQXQ4MGB6NOSV')
+keyboard = Controller();
 
 from sys import byteorder
 from array import array
@@ -153,6 +154,8 @@ if __name__ == '__main__':
         time.sleep(1)
         resp = client.message(j)
         print('Yay, got Wit.ai response: ' + str(resp))
+        #winsound.PlaySound(sound, winsound.SND_FILENAME)
+        #playsound(sound)
         if str(resp['_text']).find('stop') >= 0:
             break
         if ( ('structure' in resp['entities']) and resp['entities']['structure'][0]['value'] == 'function'):
@@ -164,37 +167,54 @@ if __name__ == '__main__':
                         if index!=0:
                             arguments += ','
                         arguments += resp['entities']['argument_name'][index]['value']
-                keyboard.write('def '+ name+ '('+arguments+'):',0.1)        
-                keyboard.send('enter,tab')
+                keyboard.type('def '+ name+ '('+arguments+'):')
+                keyboard.press(Key.enter)
+                keyboard.release(Key.enter)
+                keyboard.press(Key.tab)
+                keyboard.release(Key.tab)
 
         elif ('print' in resp['entities']) and resp['entities']['print'][0]['value'] == 'print':
             if('function_name' in resp['entities']):
                 name = resp['entities']['function_name'][0]['value']
-                keyboard.write('def print_'+name+':')
-                keyboard.send('enter,tab')
-                keyboard.write('print('+name+')')
-                keyboard.send('enter')
-                keyboard.send('backspace')
+                keyboard.type('def print_'+name+':')
+                keyboard.press(Key.enter)
+                keyboard.release(Key.enter)
+                keyboard.press(Key.tab)
+                keyboard.release(Key.tab)
+                keyboard.type('print('+name+')')
+                keyboard.press(Key.enter)
+                keyboard.release(Key.enter)
+                keyboard.press(Key.backspace)
+                keyboard.release(Key.backspace)
             
         elif ('structure' in resp['entities']) and resp['entities']['structure'][0]['value'] == 'variable':
             if('function_name' in resp['entities']):
                 name = resp['entities']['function_name'][0]['value']
-                keyboard.write(name+ ' = 0',0.1)
-                keyboard.send('enter')
+                keyboard.type(name+ ' = 0')
+                keyboard.press(Key.enter)
+                keyboard.release(Key.enter)
             
         elif ('loop' in resp['entities']) and resp['entities']['loop'][0]['value'] == 'while loop':
-            keyboard.write('while True:')
-            keyboard.send('enter,tab');
+            keyboard.type('while True:')
+            keyboard.press(Key.enter)
+            keyboard.release(Key.enter)
+            keyboard.press(Key.tab)
+            keyboard.release(Key.tab)
         elif ('move' in resp['entities']) and (resp['entities']['move'][0]['value'] == 'back space'):
-            keyboard.send('backspace')
+            keyboard.press(Key.backspace)
+            keyboard.release(Key.backspace)
         elif ('function_name' in resp['entities']) and (resp['entities']['function_name'][0]['value'] == 'right'):
-            keyboard.send('right arrow')
+            keyboard.press(Key.right)
+            keyboard.release(Key.right)
         elif ('function_name' in resp['entities']) and (resp['entities']['function_name'][0]['value'] == 'left'):
-            keyboard.send('left arrow')
+            keyboard.press(Key.up)
+            keyboard.release(Key.up)
         elif ('move' in resp['entities']) and (resp['entities']['move'][0]['value'] == 'up'):
-            keyboard.send('up arrow')
+            keyboard.press(Key.up)
+            keyboard.release(Key.up)
         elif ('move' in resp['entities']) and (resp['entities']['move'][0]['value'] == 'down'):
-            keyboard.send('down arrow')
+            keyboard.press(Key.down)
+            keyboard.release(Key.down)
         else:
             unknown_command();
 
