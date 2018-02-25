@@ -103,7 +103,7 @@ def record():
 
     r = normalize(r)
     r = trim(r)
-    r = add_silence(r, 2)#originally .5 seconds
+    r = add_silence(r, 5)#originally .5 seconds
     return sample_width, r
 
 def unknown_command():
@@ -122,44 +122,68 @@ def record_to_file(path):
     wf.close()
 
 if __name__ == '__main__':
-    
-	while(1):
-		print("please speak a word into the microphone. Say stop to quit.")
-		record_to_file('demo.wav')
-		print("done - result written to demo.wav")
-		try:
-			with open('demo.wav','rb') as f:
-				resp = client.speech(f,None,{'Content-Type':'audio/wav'})
-			print('Yay, got Wit.ai response: ' + str(resp))
-			if str(resp['_text']).find('stop') >= 0:
-				keyboard.send(ctrl+s)
-				break
-			if resp['entities']['structure'][0]['value'] == 'function':
-				name = resp['entities']['function_name'][0]['value']
-				arguments = ""
-				if 'argument' in resp['entities']:
-					for index in resp['entities']['argument_name']:
-						if index!=0:
-							arguments += ','
-						arguments += resp['entities']['argument_name'][index]['value']
-				keyboard.write('def '+ name+ '('+arguments+'):',0.1)        
-				keyboard.send('enter,tab')
-				keyboard.send('ctrl+s')
-			elif resp['entities']['structure'][0]['value'] == 'variable':
-				name = resp['entities']['function_name'][0]['value']
-				keyboard.write(name+ ' = 0',0.1)
-				keyboard.send('enter')
-				keyboard.send('ctrl+s')
-			elif resp['entities']['structure'][0]['value'] == 'loop':
-				condition = resp['entities']['condition'][0]['value'];
-				keyboard.write('while ' + condition + ':')
-				keyboard.send('enter, tab');
-				keyboard.send('ctrl+s')
-			else:
-				unknown_command();
-		except Exception as e:   
-			print(str(e));
+    test = True
+    while(test):
+        test = False
+        response_continue = True 
+        while(response_continue):
+            print("please speak a word into the microphone. Say stop to quit.")
+            record_to_file('demo.wav')
+            print("done - result written to demo.wav")
+            try:     
+                with open('demo.wav','rb') as f:
+                    resp = client.speech(f,None,{'Content-Type':'audio/wav'})
+                response_continue = False;
+            except Exception as e:
+                print("response issue")
         
+        print('Yay, got Wit.ai response: ' + str(resp))
+        if str(resp['_text']).find('stop') >= 0:
+            break
+        if ( ('structure' in resp['entities']) and resp['entities']['structure'][0]['value'] == 'function'):
+            if('function_name' in resp['entities']):
+                name = resp['entities']['function_name'][0]['value']
+                arguments = ""
+                if 'argument' in resp['entities']:
+                    for index in len(resp['entities']['argument_name']):
+                        if index!=0:
+                            arguments += ','
+                        arguments += resp['entities']['argument_name'][index]['value']
+                keyboard.write('def '+ name+ '('+arguments+'):',0.1)        
+                keyboard.send('enter,tab')
+
+        elif ('print' in resp['entities']) and resp['entities']['print'][0]['value'] == 'print':
+            if('function_name' in resp['entities']):
+                name = resp['entities']['function_name'][0]['value']
+                keyboard.write('def print_'+name+':')
+                keyboard.send('enter,tab')
+                keyboard.write('print('+name+')')
+                keyboard.send('enter')
+                keyboard.send('backspace')
+            
+        elif ('structure' in resp['entities']) and resp['entities']['structure'][0]['value'] == 'variable':
+            if('function_name' in resp['entities']):
+                name = resp['entities']['function_name'][0]['value']
+                keyboard.write(name+ ' = 0',0.1)
+                keyboard.send('enter')
+            
+        elif ('loop' in resp['entities']) and resp['entities']['loop'][0]['value'] == 'while loop':
+            keyboard.write('while True:')
+            keyboard.send('enter,tab');
+        elif ('move' in resp['entities']) and (resp['entities']['move'][0]['value'] == 'back space'):
+            keyboard.send('backspace',0.1)
+        elif ('function_name' in resp['entities']) and (resp['entities']['function_name'][0]['value'] == 'right'):
+            keyboard.send('right arrow',0.1)
+        elif ('function_name' in resp['entities']) and (resp['entities']['function_name'][0]['value'] == 'left'):
+            keyboard.send('left arrow',0.1)
+        elif ('move' in resp['entities']) and (resp['entities']['move'][0]['value'] == 'up'):
+            keyboard.send('up arrow',0.1)
+        elif ('move' in resp['entities']) and (resp['entities']['move'][0]['value'] == 'down'):
+            keyboard.send('down arrow',0.1)
+        else:
+            unknown_command();
+
+    
     #create variables
     #backspace
     #tab
