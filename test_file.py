@@ -124,7 +124,7 @@ def record_to_file(path):
 if __name__ == '__main__':
     test = True
     while(test):
-        test = False
+        #test = False
         response_continue = True 
         while(response_continue):
             print("please speak a word into the microphone. Say stop to quit.")
