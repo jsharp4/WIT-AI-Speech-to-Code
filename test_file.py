@@ -106,6 +106,9 @@ def record():
     r = add_silence(r, 0.5)
     return sample_width, r
 
+def unknown_command():
+    print("command not understood")
+    
 def record_to_file(path):
     "Records from the microphone and outputs the resulting data to 'path'"
     sample_width, data = record()
@@ -119,13 +122,38 @@ def record_to_file(path):
     wf.close()
 
 if __name__ == '__main__':
+    
     print("please speak a word into the microphone")
     record_to_file('demo.wav')
     print("done - result written to demo.wav")
-    with open('demo.wav','rb') as f:
-        resp = client.speech(f,None,{'Content-Type':'audio/wav'})
-    print('Yay, got Wit.ai response: ' + str(resp))
-    if resp['entities']['structure'][0]['value'] == 'function':
-        name = resp['entities']['function_name'][0]['value']
-        keyboard.write('def '+ name+ '():',0.1)
+    try:
+        with open('demo.wav','rb') as f:
+            resp = client.speech(f,None,{'Content-Type':'audio/wav'})
+        print('Yay, got Wit.ai response: ' + str(resp))
+        if resp['entities']['structure'][0]['value'] == 'function':
+            name = resp['entities']['function_name'][0]['value']
+            keyboard.write('def '+ name+ '():',0.1)
+            keyboard.send('enter,tab')
+            keyboard.send('ctrl+s')
+        elif resp['entities']['structure'][0]['value'] == 'variable':
+            name = resp['entities']['function_name'][0]['value']
+            keyboard.write(name+ ' = 0',0.1)
+            keyboard.send('enter')
+            keyboard.send('ctrl+s')
+        else:
+            unknown_command();
+    except Exception as e:   
+            unknown_command();
+        
+    #create variables
+    #backspace
+    #tab
+    #go up (number) lines
+    #go down (number) lines
+    #go left (number) lines
+    #go right (number) lines
+        
+ 
+    
+        
         
