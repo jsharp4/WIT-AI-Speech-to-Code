@@ -136,6 +136,7 @@ if __name__ == '__main__':
                 ,'print function with variable b'
                 ,'move down'
                 ,'create function check with parameters c and d'
+                ,'save as demo.txt'
                 }
     for j in plan:
         test = False
@@ -158,6 +159,16 @@ if __name__ == '__main__':
         #playsound(sound)
         if str(resp['_text']).find('stop') >= 0:
             break
+        if ('save' in resp['entities']):
+            if resp['entities']['save'][0]['value'] == 'save as' and ('function_name' in resp['entities']):
+                name = resp['entities']['function_name'][0]['value']
+                keyboard.press(Key.ctrl)
+                keyboard.press('s')
+                keyboard.release(Key.ctrl)
+                keyboard.release('s')
+                keyboard.type(name)
+            keyboard.press(Key.enter)
+            keyboard.release(Key.enter)
         if ( ('structure' in resp['entities']) and resp['entities']['structure'][0]['value'] == 'function'):
             if('function_name' in resp['entities']):
                 name = resp['entities']['function_name'][0]['value']
