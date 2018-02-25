@@ -103,7 +103,7 @@ def record():
 
     r = normalize(r)
     r = trim(r)
-    r = add_silence(r, 1.5)#originally .5 seconds
+    r = add_silence(r, 2)#originally .5 seconds
     return sample_width, r
 
 def unknown_command():
@@ -123,33 +123,42 @@ def record_to_file(path):
 
 if __name__ == '__main__':
     
-    print("please speak a word into the microphone")
-    record_to_file('demo.wav')
-    print("done - result written to demo.wav")
-    try:
-        with open('demo.wav','rb') as f:
-            resp = client.speech(f,None,{'Content-Type':'audio/wav'})
-        print('Yay, got Wit.ai response: ' + str(resp))
-        if resp['entities']['structure'][0]['value'] == 'function':
-            name = resp['entities']['function_name'][0]['value']
-            arguments = ""
-            if 'argument' in resp['entities']:
-                for index in resp['entities']['argument_name']:
-                    if index!=0:
-                        arguments += ','
-                    arguments += resp['entities']['argument_name'][index]['value']
-            keyboard.write('def '+ name+ '('+arguments+'):',0.1)        
-            keyboard.send('enter,tab')
-            keyboard.send('ctrl+s')
-        elif resp['entities']['structure'][0]['value'] == 'variable':
-            name = resp['entities']['function_name'][0]['value']
-            keyboard.write(name+ ' = 0',0.1)
-            keyboard.send('enter')
-            keyboard.send('ctrl+s')
-        else:
-            unknown_command();
-    except Exception as e:   
-            unknown_command();
+	while(1):
+		print("please speak a word into the microphone. Say stop to quit.")
+		record_to_file('demo.wav')
+		print("done - result written to demo.wav")
+		try:
+			with open('demo.wav','rb') as f:
+				resp = client.speech(f,None,{'Content-Type':'audio/wav'})
+			print('Yay, got Wit.ai response: ' + str(resp))
+			if str(resp['_text']).find('stop') >= 0:
+				keyboard.send(ctrl+s)
+				break
+			if resp['entities']['structure'][0]['value'] == 'function':
+				name = resp['entities']['function_name'][0]['value']
+				arguments = ""
+				if 'argument' in resp['entities']:
+					for index in resp['entities']['argument_name']:
+						if index!=0:
+							arguments += ','
+						arguments += resp['entities']['argument_name'][index]['value']
+				keyboard.write('def '+ name+ '('+arguments+'):',0.1)        
+				keyboard.send('enter,tab')
+				keyboard.send('ctrl+s')
+			elif resp['entities']['structure'][0]['value'] == 'variable':
+				name = resp['entities']['function_name'][0]['value']
+				keyboard.write(name+ ' = 0',0.1)
+				keyboard.send('enter')
+				keyboard.send('ctrl+s')
+			elif resp['entities']['structure'][0]['value'] == 'loop':
+				condition = resp['entities']['condition'][0]['value'];
+				keyboard.write('while ' + condition + ':')
+				keyboard.send('enter, tab');
+				keyboard.send('ctrl+s')
+			else:
+				unknown_command();
+		except Exception as e:   
+			print(str(e));
         
     #create variables
     #backspace
