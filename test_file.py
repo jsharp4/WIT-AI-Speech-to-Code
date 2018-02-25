@@ -103,7 +103,7 @@ def record():
 
     r = normalize(r)
     r = trim(r)
-    r = add_silence(r, 0.5)
+    r = add_silence(r, 1.5)#originally .5 seconds
     return sample_width, r
 
 def unknown_command():
@@ -132,7 +132,13 @@ if __name__ == '__main__':
         print('Yay, got Wit.ai response: ' + str(resp))
         if resp['entities']['structure'][0]['value'] == 'function':
             name = resp['entities']['function_name'][0]['value']
-            keyboard.write('def '+ name+ '():',0.1)
+            arguments = ""
+            if 'argument' in resp['entities']:
+                for index in resp['entities']['argument_name']:
+                    if index!=0:
+                        arguments += ','
+                    arguments += resp['entities']['argument_name'][index]['value']
+            keyboard.write('def '+ name+ '('+arguments+'):',0.1)        
             keyboard.send('enter,tab')
             keyboard.send('ctrl+s')
         elif resp['entities']['structure'][0]['value'] == 'variable':
